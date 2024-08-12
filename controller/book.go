@@ -9,12 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type BookController struct {
-	BookRepo repository.BookRepo
+type bookController struct {
+	repo repository.BookRepo
 }
 
-func (cont *BookController) GetAllBooks(ctx *gin.Context) {
-	books, err := cont.BookRepo.GetAll()
+func BookController(repo repository.BookRepo) *bookController {
+	return &bookController{repo: repo}
+}
+
+func (cont *bookController) GetAllBooks(ctx *gin.Context) {
+	books, err := cont.repo.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -23,7 +27,7 @@ func (cont *BookController) GetAllBooks(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, books)
 }
 
-func (cont *BookController) CreateBook(ctx *gin.Context) {
+func (cont *bookController) CreateBook(ctx *gin.Context) {
 
 	var createBookRequest model.CreateBookRequest
 
@@ -32,7 +36,7 @@ func (cont *BookController) CreateBook(ctx *gin.Context) {
 		return
 	}
 
-	book, err := cont.BookRepo.Create(createBookRequest)
+	book, err := cont.repo.Create(createBookRequest)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -41,7 +45,7 @@ func (cont *BookController) CreateBook(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, book)
 }
 
-func (cont *BookController) GetBookById(ctx *gin.Context) {
+func (cont *bookController) GetBookById(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 0)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
@@ -49,7 +53,7 @@ func (cont *BookController) GetBookById(ctx *gin.Context) {
 	}
 
 	var book model.Book
-	book, err = cont.BookRepo.GetById(uint(id))
+	book, err = cont.repo.GetById(uint(id))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -58,7 +62,7 @@ func (cont *BookController) GetBookById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, book)
 }
 
-func (cont *BookController) UpdateBook(ctx *gin.Context) {
+func (cont *bookController) UpdateBook(ctx *gin.Context) {
 	var updateBookRequest model.UpdateBookRequest
 	if err := ctx.ShouldBindJSON(&updateBookRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
@@ -71,7 +75,7 @@ func (cont *BookController) UpdateBook(ctx *gin.Context) {
 		return
 	}
 
-	book, err := cont.BookRepo.Update(uint(id), updateBookRequest)
+	book, err := cont.repo.Update(uint(id), updateBookRequest)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -80,14 +84,14 @@ func (cont *BookController) UpdateBook(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, book)
 }
 
-func (cont *BookController) DeleteBook(ctx *gin.Context) {
+func (cont *bookController) DeleteBook(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 0)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	book, err := cont.BookRepo.Delete(uint(id))
+	book, err := cont.repo.Delete(uint(id))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return

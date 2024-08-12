@@ -12,8 +12,8 @@ func main() {
 	router := gin.Default()
 	db := setup.ConnectDatabase()
 
-	repo := repository.BookRepoImpl{Db: db}
-	cont := controller.BookController{BookRepo: &repo}
+	repo := repository.BookRepoImpl(db)
+	cont := controller.BookController(repo)
 
 	router.GET("/books", cont.GetAllBooks)
 	router.POST("/books", cont.CreateBook)
